@@ -1,117 +1,93 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type { PropsWithChildren } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Button, Text, Card, ThemeProvider } from '@rneui/themed';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({ children, title }: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+// 创建主屏幕组件
+const HomeScreen = ({ navigation }: { navigation: any }) => {
+  // 主屏幕内容
+  console.log('-navigation-',navigation);
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.container}>
+      <Card>
+        <Card.Title>欢迎使用乔云DApp</Card.Title>
+        <Card.Divider />
+        <Text style={styles.paragraph}>
+          连接您的钱包开始使用区块链功能
+        </Text>
+        <Button
+          title="连接钱包"
+          buttonStyle={styles.button}
+          onPress={() => console.log('连接钱包')}
+        />
+        <Button
+          title="前往详情页"
+          buttonStyle={[styles.button, { marginTop: 10 }]}
+          onPress={() => navigation.navigate('Details')}
+        />
+      </Card>
     </View>
   );
-}
+};
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
+// 创建详情页组件
+const DetailsScreen = () => {
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <Card>
+        <Card.Title>详情页面</Card.Title>
+        <Card.Divider />
+        <Text style={styles.paragraph}>
+          这是一个详情页面示例
+        </Text>
+      </Card>
+    </View>
   );
-}
+};
+
+// 创建导航堆栈
+const Stack = createNativeStackNavigator();
+
+// 主应用组件
+const App = () => {
+  return (
+    <ThemeProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen 
+            name="Home" 
+            component={HomeScreen} 
+            options={{ title: '乔云DApp' }}
+          />
+          <Stack.Screen 
+            name="Details" 
+            component={DetailsScreen} 
+            options={{ title: '详情' }}
+          />
+        </Stack.Navigator>
+         <Text>1111</Text>
+      </NavigationContainer>
+    </ThemeProvider>
+  );
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 8,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  paragraph: {
+    margin: 12,
+    fontSize: 16,
+    textAlign: 'center',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  button: {
+    backgroundColor: '#2089dc',
+    borderRadius: 6,
+    marginTop: 15,
   },
 });
 
