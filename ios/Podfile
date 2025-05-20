@@ -17,6 +17,10 @@ end
 target 'QiaoyunMobile' do
   config = use_native_modules!
 
+  # 添加 React Native 手势处理器和 Reanimated 依赖
+  pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
+  pod 'RNReanimated', :path => '../node_modules/react-native-reanimated'
+
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
