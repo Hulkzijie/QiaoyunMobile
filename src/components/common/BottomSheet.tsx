@@ -1,213 +1,161 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {View, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
+import React, { useEffect } from 'react';
+import {
+  View,
+  TouchableWithoutFeedback,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
+  runOnJS,
 } from 'react-native-reanimated';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import {useTheme as useRNETheme} from '@rneui/themed';
-// 移除不存在的导入
-// import { colors } from '../../quo/foundations/colors';
-// import { dismissKeyboard } from '../../utils/re-frame';
 
-const DURATION = 450;
-const TIMING_OPTIONS = {duration: DURATION};
-const BOTTOM_MARGIN = 8;
-
+// 定义组件属性接口
 interface BottomSheetProps {
+  // 底部弹窗的内容
   content: React.ReactNode;
-  selectedItem?: any;
-  paddingBottomOverride?: number;
-  borderRadius?: number;
+  // 控制弹窗是否隐藏
+  hide: boolean;
+  // 关闭弹窗的回调函数
   onClose?: () => void;
-  shell?: boolean;
-  gradientCover?: boolean;
-  customizationColor?: string;
-  hideHandle?: boolean;
-  blurRadius?: number;
+  // 底部内边距的覆盖值
+  paddingBottomOverride?: number;
+  // 点击背景是否自动关闭弹窗
   hideOnBackgroundPress?: boolean;
-  dragContent?: boolean;
-  hide?: boolean;
-  insets?: {
-    top: number;
-    bottom: number;
-    left: number;
-    right: number;
-  };
 }
+
+// 动画持续时间
+const ANIMATION_DURATION = 300;
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({
   content,
-  selectedItem,
-  paddingBottomOverride,
-  borderRadius = 12,
+  hide,
   onClose,
-  shell = false,
-  gradientCover = false,
-  customizationColor,
-  hideHandle = false,
-  blurRadius,
+  paddingBottomOverride = 0,
   hideOnBackgroundPress = true,
-  dragContent = true,
-  hide = false,
-  insets
 }) => {
-  const { theme } = useRNETheme();
-  const isDarkMode = theme.mode === 'dark';
-  const { height: windowHeight } = Dimensions.get('window');
-  const [sheetHeight, setSheetHeight] = useState(0);
-  const [layoutHeight, setLayoutHeight] = useState(windowHeight);
-  const translateY = useSharedValue(windowHeight);
-  const bgOpacity = useSharedValue(0);
-  const gestureValues = useRef({ panY: 0, pdy: 0, dy: 0 }).current;
-
-  const handleSheetHeight = useCallback(e => {
-    const height = e.nativeEvent.layout.height;
-    setSheetHeight(height);
-  }, []);
-
-  const handleLayoutHeight = useCallback(e => {
-    const height = e.nativeEvent.layout.height;
-    setLayoutHeight(height);
-  }, []);
-
-  // 将 hide 函数重命名为 hideSheet
-  const hideSheet = useCallback(() => {
-   //  dismissKeyboard();
-    if (onClose) {
-      onClose();
-    }
-    // 使用timeout模拟动画回调，增加50ms作为安全边际
-    setTimeout(() => {
-      // 这里应该dispatch一个事件，但在React中我们可以使用回调或状态管理
-    }, DURATION + 50);
-    
-    translateY.value = withTiming(windowHeight, TIMING_OPTIONS);
-    bgOpacity.value = withTiming(0, TIMING_OPTIONS);
-  }, [translateY, bgOpacity, windowHeight, onClose]);
-
-  const show = useCallback(() => {
-    translateY.value = withTiming(0, TIMING_OPTIONS);
-    bgOpacity.value = withTiming(1, TIMING_OPTIONS);
-  }, [translateY, bgOpacity]);
-
-  const panGesture = Gesture.Pan()
-    .onStart(() => {
-      gestureValues.panY = translateY.value;
-    })
-    .onUpdate((e) => {
-      const tY = e.translationY;
-      gestureValues.dy = tY - gestureValues.pdy;
-      gestureValues.pdy = tY;
-      
-      if (tY > 0) {
-        translateY.value = tY + gestureValues.panY;
-      }
-    })
-    .onEnd(() => {
-      if (gestureValues.dy < 0) {
-        show();
-      } else {
-        hideSheet(); // 使用重命名后的函数
-      }
-    });
-
-  const backgroundAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: bgOpacity.value,
-  }));
-
-  const sheetAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: translateY.value}],
-  }));
-
+  // 获取屏幕高度
+  const { height: screenHeight } = Dimensions.get('window');
+  
+  // 创建共享值用于动画
+  const translateY = useSharedValue(screenHeight);
+  const opacity = useSharedValue(0);
+  
+  // 监听 hide 属性变化，控制显示和隐藏
   useEffect(() => {
     if (hide) {
-      translateY.value = windowHeight;
-      bgOpacity.value = 0;
+      // 隐藏动画
+      translateY.value = withTiming(screenHeight, {
+        duration: ANIMATION_DURATION,
+      });
+      opacity.value = withTiming(0, {
+        duration: ANIMATION_DURATION,
+      });
     } else {
-      show();
+      // 显示动画
+      translateY.value = withTiming(0, {
+        duration: ANIMATION_DURATION,
+      });
+      opacity.value = withTiming(0.5, {
+        duration: ANIMATION_DURATION,
+      });
     }
-  }, [hide, show, translateY, bgOpacity, windowHeight]);
-
+  }, [hide, translateY, opacity, screenHeight]);
+  
+  // 创建背景动画样式
+  const backgroundAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+    };
+  });
+  
+  // 创建底部弹窗动画样式
+  const bottomSheetAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: translateY.value }],
+    };
+  });
+  
+  // 处理背景点击事件
+  const handleBackgroundPress = () => {
+    if (hideOnBackgroundPress && onClose) {
+      onClose();
+    }
+  };
+  
+  // 如果 hide 为 true 且动画已完成，不渲染任何内容
+  if (hide && translateY.value === screenHeight) {
+    return null;
+  }
+  
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        activeOpacity={1}
-        style={StyleSheet.absoluteFill}
-        onPress={hideOnBackgroundPress ? hideSheet : undefined} // 使用重命名后的函数
+      {/* 背景遮罩 */}
+      <TouchableWithoutFeedback onPress={handleBackgroundPress}>
+        <Animated.View style={[styles.background, backgroundAnimatedStyle]} />
+      </TouchableWithoutFeedback>
+      
+      {/* 底部弹窗内容 */}
+      <Animated.View 
+        style={[
+          styles.bottomSheet, 
+          bottomSheetAnimatedStyle,
+          { paddingBottom: paddingBottomOverride }
+        ]}
       >
-        <Animated.View
-          style={[styles.background(theme), backgroundAnimatedStyle]}
-        />
-      </TouchableOpacity>
-
-      <Animated.View
-        style={[styles.sheetContainer(theme, borderRadius), sheetAnimatedStyle]}
-        onLayout={handleLayoutHeight}>
-        {!hideHandle && (
-          <View style={styles.handleContainer}>
-            <View style={styles.handle(theme)} />
-          </View>
-        )}
-
-        <GestureDetector gesture={dragContent ? panGesture : null}>
-          <View
-            style={styles.contentContainer(
-              paddingBottomOverride,
-              insets?.bottom,
-            )}
-            onLayout={handleSheetHeight}>
-            {content}
-          </View>
-        </GestureDetector>
+        {/* 顶部拖动条 */}
+        <View style={styles.dragHandle} />
+        
+        {/* 内容区域 */}
+        <View style={styles.content}>
+          {content}
+        </View>
       </Animated.View>
     </View>
   );
 };
 
+// 样式定义
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'flex-end',
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1000,
   },
-  background: theme => ({
-    backgroundColor: theme.colors.black + 'B3', // 70% opacity
+  background: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
+  },
+  bottomSheet: {
     position: 'absolute',
-    top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-  }),
-  sheetContainer: (theme, borderRadius) => ({
-    backgroundColor:
-      theme.mode === 'dark' ? theme.colors.grey5 : theme.colors.white,
-    borderTopLeftRadius: borderRadius,
-    borderTopRightRadius: borderRadius,
-    overflow: 'hidden',
-    maxHeight: '90%',
-  }),
-  handleContainer: {
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'white',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  handle: theme => ({
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor:
-      theme.mode === 'dark'
-        ? theme.colors.white + '1A' // 10% opacity
-        : theme.colors.black + '0D', // 5% opacity
-  }),
-  contentContainer: (paddingBottomOverride, bottomInset) => ({
-    paddingBottom: paddingBottomOverride || (bottomInset || 0) + BOTTOM_MARGIN,
-  }),
+  dragHandle: {
+    width: 40,
+    height: 5,
+    backgroundColor: '#ccc',
+    borderRadius: 3,
+    marginTop: 10,
+    marginBottom: 10,
+    alignSelf: 'center',
+  },
+  content: {
+    padding: 16,
+  },
 });
 
 export default BottomSheet;
