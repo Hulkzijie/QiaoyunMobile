@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {Button, Text, Card, ThemeProvider} from '@rneui/themed';
+import {Button, Text, Card, ThemeProvider,Icon,createTheme} from '@rneui/themed';
 import {Provider} from 'react-redux';
 import {store} from './src/redux/store';
 
@@ -8,7 +8,6 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import {Icon} from '@rneui/themed';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -16,20 +15,28 @@ import {
 import 'react-native-reanimated';
 // 导入 BottomSheet 组件
 import {BottomSheet} from './src/components/common/BottomSheet';
+// 导入 BottomSheetScreen 组件
+import {BottomSheetScreen} from './src/components/common/BottomSheetScreen';
 // 导入 Counter 组件
 import Counter from './src/components/Counter';
-
+// 导入 SimpleBottomSheet 组件
+import SimpleBottomSheet from './src/components/common/SimpleBottomSheet';
 // 创建主屏幕组件
 const HomeScreen = ({navigation}: {navigation: any}) => {
   const insets = useSafeAreaInsets();
   // 添加状态来控制 BottomSheet 的显示
   const [showBottomSheet, setShowBottomSheet] = useState(false);
-
+  // 添加状态来控制 BottomSheetScreen 的显示
+  const [showBottomSheetScreen, setShowBottomSheetScreen] = useState(false);
+  // 添加状态来控制 SimpleBottomSheet 的显示
+  const [showSimpleBottomSheet, setShowSimpleBottomSheet] = useState(false);
   // 底部弹窗内容
   const bottomSheetContent = (
     <View style={{padding: 20}}>
       <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
         钱包连接选项
+        {/* <Icon name='settings-outline' type='ionicons'/> */}
+        <Icon name="home" type="material" color="#1b8d74" size={24} />
       </Text>
       <Button
         title="连接 MetaMask"
@@ -97,8 +104,23 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
           title="测试按钮 (Stack)"
           buttonStyle={[styles.button, {marginTop: 10}]}
           onPress={() => {
-            console.log('测试按钮被点击')
             setShowBottomSheet(true);
+          }}
+        />
+        <Button
+          title="测试 BottomSheetScreen"
+          buttonStyle={[styles.button, {marginTop: 10, backgroundColor: '#FF5722'}]}
+          onPress={() => {
+            console.log('测试 BottomSheetScreen');
+            setShowBottomSheetScreen(true);
+          }}
+        />
+        <Button
+          title="测试 SimpleBottomSheet"
+          buttonStyle={[styles.button, {marginTop: 10, backgroundColor: '#4CAF50'}]}
+          onPress={() => {
+            console.log('测试 SimpleBottomSheet');
+            setShowSimpleBottomSheet(true);
           }}
         />
       </Card>
@@ -110,6 +132,49 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
           paddingBottomOverride={insets.bottom}
           hideOnBackgroundPress={true}
         />
+      )}
+      
+      {showBottomSheetScreen && (
+        <BottomSheetScreen
+          onClose={() => setShowBottomSheetScreen(false)}
+          showHandle={true}
+          disableClosing={false}
+        >
+          <View style={{padding: 20}}>
+            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
+              BottomSheetScreen 测试
+            </Text>
+            <Text style={{marginBottom: 20}}>
+              这是一个全屏底部弹窗组件，支持拖拽关闭
+            </Text>
+            <Button
+              title="关闭"
+              buttonStyle={{backgroundColor: '#F44336', marginTop: 20}}
+              onPress={() => setShowBottomSheetScreen(false)}
+            />
+          </View>
+        </BottomSheetScreen>
+      )}
+      
+      {showSimpleBottomSheet && (
+        <SimpleBottomSheet
+          onClose={() => setShowSimpleBottomSheet(false)}
+          showHandle={true}
+        >
+          <View style={{padding: 20}}>
+            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
+              SimpleBottomSheet 测试
+            </Text>
+            <Text style={{marginBottom: 20}}>
+              这是一个简化版的底部弹窗组件，支持拖拽关闭
+            </Text>
+            <Button
+              title="关闭"
+              buttonStyle={{backgroundColor: '#4CAF50', marginTop: 20}}
+              onPress={() => setShowSimpleBottomSheet(false)}
+            />
+          </View>
+        </SimpleBottomSheet>
       )}
     </View>
   );
@@ -188,25 +253,24 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
-// 定义底部选项卡导航组件
+// 定义底部选项卡导航组件name="home" type="material"
 function MainTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
         tabBarIcon: ({focused, color, size}) => {
           let iconName: string = '';
-
           if (route.name === 'HomeTab') {
-            iconName = focused ? 'home' : 'home-outline';
+            iconName = focused ? 'home-outline' : 'home-outline';
           } else if (route.name === 'DetailsTab') {
-            iconName = focused ? 'list' : 'list-outline';
+            iconName = focused ? 'settings-outline' : 'list-outline';
           } else if (route.name === 'WalletTab') {
             iconName = focused ? 'wallet' : 'wallet-outline';
           } else if (route.name === 'ProfileTab') {
             iconName = focused ? 'person' : 'person-outline';
           }
 
-          // 返回图标组件
+          // 返回图标组件<ion-icon name="settings-outline"></ion-icon>
           return (
             <Icon name={iconName} type="ionicon" size={size} color={color} />
           );
@@ -501,13 +565,32 @@ function AppDrawerNavigator() {
     </Drawer.Navigator>
   );
 }
+const Colors = {
+  primary: '#1E88E5',
+  secondary: '#FF5722',
+  background: '#F5F5F5',
+  text: '#333333',
+  success: '#4CAF50',
+  error: '#F44336',
+  warning: '#FFC107', 
+}
+const theme = createTheme({
+  lightColors: Colors,
+  darkColors: Colors,
+  mode: 'light' | 'dark',
+  components: {
+    componentName: (props, theme) => ({
+      // Props
+    }),
+  },
+});
 
 // 主应用组件
 const App = () => {
   return (
     <Provider store={store}>
       <SafeAreaProvider>
-        <ThemeProvider>
+        <ThemeProvider theme={theme}>
           <NavigationContainer>
             <AppDrawerNavigator />
           </NavigationContainer>
