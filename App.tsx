@@ -1,9 +1,18 @@
 import React, {useState} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {Button, Text, Card, ThemeProvider,Icon,createTheme} from '@rneui/themed';
+import {
+  Button,
+  Text,
+  Card,
+  ThemeProvider,
+  Icon,
+  createTheme,
+} from '@rneui/themed';
 import {Provider} from 'react-redux';
 import {store} from './src/redux/store';
 
+//解决RN的crypto模块缺失问题
+import 'react-native-get-random-values';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -21,6 +30,7 @@ import {BottomSheetScreen} from './src/components/common/BottomSheetScreen';
 import Counter from './src/components/Counter';
 // 导入 SimpleBottomSheet 组件
 import SimpleBottomSheet from './src/components/common/SimpleBottomSheet';
+import {ethers} from 'ethers';
 // 创建主屏幕组件
 const HomeScreen = ({navigation}: {navigation: any}) => {
   const insets = useSafeAreaInsets();
@@ -37,6 +47,20 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
         钱包连接选项
         {/* <Icon name='settings-outline' type='ionicons'/> */}
         <Icon name="home" type="material" color="#1b8d74" size={24} />
+        <Icon name="sc-telegram" type="evilicons" color="#517fa4" />
+        <Icon
+          reverse
+          name="ios-american-football"
+          type="ionicon"
+          color="#517fa4"
+        />
+        <Icon
+          raised
+          name="heartbeat"
+          type="font-awesome"
+          color="#f50"
+          onPress={() => console.log('hello')}
+        />
       </Text>
       <Button
         title="连接 MetaMask"
@@ -109,7 +133,10 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
         />
         <Button
           title="测试 BottomSheetScreen"
-          buttonStyle={[styles.button, {marginTop: 10, backgroundColor: '#FF5722'}]}
+          buttonStyle={[
+            styles.button,
+            {marginTop: 10, backgroundColor: '#FF5722'},
+          ]}
           onPress={() => {
             console.log('测试 BottomSheetScreen');
             setShowBottomSheetScreen(true);
@@ -117,12 +144,27 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
         />
         <Button
           title="测试 SimpleBottomSheet"
-          buttonStyle={[styles.button, {marginTop: 10, backgroundColor: '#4CAF50'}]}
+          buttonStyle={[
+            styles.button,
+            {marginTop: 10, backgroundColor: '#4CAF50'},
+          ]}
           onPress={() => {
             console.log('测试 SimpleBottomSheet');
             setShowSimpleBottomSheet(true);
           }}
         />
+        <Button
+          title="测试以太坊钱包"
+          buttonStyle={[
+            styles.button,
+            {marginTop: 10, backgroundColor: '#9C27B0'},
+          ]}
+          onPress={() => {
+            // 导航到钱包页面或显示钱包组件
+            navigation.navigate('WalletTab');
+          }}
+        />
+        <Icon name="home" type="ionicon" size={24} color="#1b8d74" />
       </Card>
       {showBottomSheet && (
         <BottomSheet
@@ -133,13 +175,12 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
           hideOnBackgroundPress={true}
         />
       )}
-      
+
       {showBottomSheetScreen && (
         <BottomSheetScreen
           onClose={() => setShowBottomSheetScreen(false)}
           showHandle={true}
-          disableClosing={false}
-        >
+          disableClosing={false}>
           <View style={{padding: 20}}>
             <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
               BottomSheetScreen 测试
@@ -155,12 +196,11 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
           </View>
         </BottomSheetScreen>
       )}
-      
+
       {showSimpleBottomSheet && (
         <SimpleBottomSheet
           onClose={() => setShowSimpleBottomSheet(false)}
-          showHandle={true}
-        >
+          showHandle={true}>
           <View style={{padding: 20}}>
             <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
               SimpleBottomSheet 测试
@@ -259,7 +299,7 @@ function MainTabNavigator() {
     <Tab.Navigator
       screenOptions={({route}) => ({
         tabBarIcon: ({focused, color, size}) => {
-          let iconName: string = '';
+          let iconName: string = 'help-outline'; // 设置默认图标
           if (route.name === 'HomeTab') {
             iconName = focused ? 'home-outline' : 'home-outline';
           } else if (route.name === 'DetailsTab') {
@@ -270,7 +310,6 @@ function MainTabNavigator() {
             iconName = focused ? 'person' : 'person-outline';
           }
 
-          // 返回图标组件<ion-icon name="settings-outline"></ion-icon>
           return (
             <Icon name={iconName} type="ionicon" size={size} color={color} />
           );
@@ -306,6 +345,23 @@ function MainTabNavigator() {
 // 钱包页面组件
 const WalletScreen = () => {
   const insets = useSafeAreaInsets();
+  const [address, setAddress] = useState('');
+  const [balance, setBalance] = useState('');
+  const connectWallet = async () => {
+    try {
+      const provider = new ethers.JsonRpcProvider('HTTP://127.0.0.1:7545', {
+        chainId: 1337,
+        name: 'Localhost 8545',
+      });
+      console.log('provider', provider);
+      const signer = await provider.getSigner();
+      console.log('signer', signer);
+      setAddress(await signer.getAddress());
+      setBalance(ethers.formatEther(await provider.getBalance(address)));
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <View
       style={[
@@ -319,6 +375,9 @@ const WalletScreen = () => {
         <Card.Title>钱包页面</Card.Title>
         <Card.Divider />
         <Text style={styles.paragraph}>管理您的数字资产</Text>
+        <Button onPress={connectWallet} title="连接钱包" />
+        <Text>地址: {address}</Text>
+        <Text>余额: {balance} ETH</Text>
         <Button
           title="查看资产"
           buttonStyle={styles.button}
@@ -572,8 +631,8 @@ const Colors = {
   text: '#333333',
   success: '#4CAF50',
   error: '#F44336',
-  warning: '#FFC107', 
-}
+  warning: '#FFC107',
+};
 const theme = createTheme({
   lightColors: Colors,
   darkColors: Colors,
