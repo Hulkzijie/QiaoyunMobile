@@ -164,7 +164,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
             navigation.navigate('WalletTab');
           }}
         />
-        <Icon name="home" type="ionicon" size={24} color="#1b8d74" />
+       
       </Card>
       {showBottomSheet && (
         <BottomSheet
@@ -349,17 +349,28 @@ const WalletScreen = () => {
   const [balance, setBalance] = useState('');
   const connectWallet = async () => {
     try {
-      const provider = new ethers.JsonRpcProvider('HTTP://127.0.0.1:7545', {
-        chainId: 1337,
-        name: 'Localhost 8545',
-      });
+      // 方法一：使用网络名称作为单独参数
+      // const provider = new ethers.JsonRpcProvider(
+      //   'HTTP://127.0.0.1:7545',
+      //   {
+      //     chainId: 1337
+
+      //   }
+      // );
+      
+      // 或者方法二：使用更简洁的方式
+       const provider = new ethers.JsonRpcProvider('HTTP://127.0.0.1:7545');
+      
       console.log('provider', provider);
       const signer = await provider.getSigner();
       console.log('signer', signer);
-      setAddress(await signer.getAddress());
-      setBalance(ethers.formatEther(await provider.getBalance(address)));
+      
+      // 先获取地址，再获取余额
+      const walletAddress = await signer.getAddress();
+      setAddress(walletAddress);
+      setBalance(ethers.formatEther(await provider.getBalance(walletAddress)));
     } catch (error) {
-      console.error(error);
+      console.error('连接钱包错误:', error);
     }
   };
   return (
