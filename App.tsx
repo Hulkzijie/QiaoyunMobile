@@ -1,38 +1,38 @@
-import React, {useState} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import {
   Button,
   Text,
   Card,
   ThemeProvider,
   Icon,
-  createTheme,
 } from '@rneui/themed';
-import {Provider} from 'react-redux';
-import {store} from './src/redux/store';
-
+import { Provider } from 'react-redux';
+import { store } from './src/redux/store';
+import { theme } from './src/theme';
 //解决RN的crypto模块缺失问题
 import 'react-native-get-random-values';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {createDrawerNavigator} from '@react-navigation/drawer';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 // 导入 BottomSheet 组件
-import {BottomSheet} from './src/components/common/BottomSheet';
+import { BottomSheet } from './src/components/common/BottomSheet';
 // 导入 BottomSheetScreen 组件
-import {BottomSheetScreen} from './src/components/common/BottomSheetScreen';
+import { BottomSheetScreen } from './src/components/common/BottomSheetScreen';
 // 导入 Counter 组件
 import Counter from './src/components/Counter';
 // 导入 SimpleBottomSheet 组件
 import SimpleBottomSheet from './src/components/common/SimpleBottomSheet';
-import {ethers} from 'ethers';
+import { ethers } from 'ethers';
+// import GradientButton from './src/components/GradientButton';
 // 创建主屏幕组件
-const HomeScreen = ({navigation}: {navigation: any}) => {
+const HomeScreen = ({ navigation }: { navigation: any }) => {
   const insets = useSafeAreaInsets();
   // 添加状态来控制 BottomSheet 的显示
   const [showBottomSheet, setShowBottomSheet] = useState(false);
@@ -42,8 +42,8 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
   const [showSimpleBottomSheet, setShowSimpleBottomSheet] = useState(false);
   // 底部弹窗内容
   const bottomSheetContent = (
-    <View style={{padding: 20}}>
-      <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
+    <View style={{ padding: 20 }}>
+      <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>
         钱包连接选项
         {/* <Icon name='settings-outline' type='ionicons'/> */}
         <Icon name="home" type="material" color="#1b8d74" size={24} />
@@ -64,7 +64,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
       </Text>
       <Button
         title="连接 MetaMask"
-        buttonStyle={[styles.button, {marginBottom: 10}]}
+        buttonStyle={[styles.button, { marginBottom: 10 }]}
         onPress={() => {
           console.log('连接 MetaMask');
           setShowBottomSheet(true);
@@ -76,7 +76,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
       />
       <Button
         title="连接 WalletConnect"
-        buttonStyle={[styles.button, {marginBottom: 10}]}
+        buttonStyle={[styles.button, { marginBottom: 10 }]}
         onPress={() => {
           console.log('连接 WalletConnect');
           setShowBottomSheet(false);
@@ -84,7 +84,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
       />
       <Button
         title="取消"
-        buttonStyle={[styles.button, {backgroundColor: '#ccc'}]}
+        buttonStyle={[styles.button, { backgroundColor: '#ccc' }]}
         onPress={() => setShowBottomSheet(false)}
       />
     </View>
@@ -113,20 +113,20 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
         />
         <Button
           title="前往详情页 (Tab)"
-          buttonStyle={[styles.button, {marginTop: 10}]}
+          buttonStyle={[styles.button, { marginTop: 10 }]}
           onPress={() => {
             console.log('正在导航到详情页...');
-            navigation.navigate('MainTabs', {screen: 'DetailsTab'});
+            navigation.navigate('MainTabs', { screen: 'DetailsTab' });
           }}
         />
         <Button
           title="打开设置页面 (Stack)"
-          buttonStyle={[styles.button, {marginTop: 10}]}
+          buttonStyle={[styles.button, { marginTop: 10 }]}
           onPress={() => navigation.navigate('SettingsStack')}
         />
         <Button
           title="测试按钮 (Stack)"
-          buttonStyle={[styles.button, {marginTop: 10}]}
+          buttonStyle={[styles.button, { marginTop: 10 }]}
           onPress={() => {
             setShowBottomSheet(true);
           }}
@@ -135,7 +135,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
           title="测试 BottomSheetScreen"
           buttonStyle={[
             styles.button,
-            {marginTop: 10, backgroundColor: '#FF5722'},
+            { marginTop: 10, backgroundColor: '#FF5722' },
           ]}
           onPress={() => {
             console.log('测试 BottomSheetScreen');
@@ -146,7 +146,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
           title="测试 SimpleBottomSheet"
           buttonStyle={[
             styles.button,
-            {marginTop: 10, backgroundColor: '#4CAF50'},
+            { marginTop: 10, backgroundColor: '#4CAF50' },
           ]}
           onPress={() => {
             console.log('测试 SimpleBottomSheet');
@@ -157,14 +157,14 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
           title="测试以太坊钱包"
           buttonStyle={[
             styles.button,
-            {marginTop: 10, backgroundColor: '#9C27B0'},
+            { marginTop: 10, backgroundColor: '#9C27B0' },
           ]}
           onPress={() => {
             // 导航到钱包页面或显示钱包组件
             navigation.navigate('WalletTab');
           }}
         />
-       
+
       </Card>
       {showBottomSheet && (
         <BottomSheet
@@ -181,16 +181,16 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
           onClose={() => setShowBottomSheetScreen(false)}
           showHandle={true}
           disableClosing={false}>
-          <View style={{padding: 20}}>
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
+          <View style={{ padding: 20 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>
               BottomSheetScreen 测试
             </Text>
-            <Text style={{marginBottom: 20}}>
+            <Text style={{ marginBottom: 20 }}>
               这是一个全屏底部弹窗组件，支持拖拽关闭
             </Text>
             <Button
               title="关闭"
-              buttonStyle={{backgroundColor: '#F44336', marginTop: 20}}
+              buttonStyle={{ backgroundColor: '#F44336', marginTop: 20 }}
               onPress={() => setShowBottomSheetScreen(false)}
             />
           </View>
@@ -201,16 +201,16 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
         <SimpleBottomSheet
           onClose={() => setShowSimpleBottomSheet(false)}
           showHandle={true}>
-          <View style={{padding: 20}}>
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
+          <View style={{ padding: 20 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>
               SimpleBottomSheet 测试
             </Text>
-            <Text style={{marginBottom: 20}}>
+            <Text style={{ marginBottom: 20 }}>
               这是一个简化版的底部弹窗组件，支持拖拽关闭
             </Text>
             <Button
               title="关闭"
-              buttonStyle={{backgroundColor: '#4CAF50', marginTop: 20}}
+              buttonStyle={{ backgroundColor: '#4CAF50', marginTop: 20 }}
               onPress={() => setShowSimpleBottomSheet(false)}
             />
           </View>
@@ -236,13 +236,19 @@ const DetailsScreen = () => {
         <Card.Title>详情页面</Card.Title>
         <Card.Divider />
         <Text style={styles.paragraph}>这是一个详情页面示例</Text>
+        {/* <GradientButton
+                    title="Action"
+                    onPress={() => { }}
+                  
+                /> */}
       </Card>
+      
     </View>
   );
 };
 
 // 创建设置页面组件
-const SettingsScreen = ({navigation}: {navigation: any}) => {
+const SettingsScreen = ({ navigation }: { navigation: any }) => {
   const insets = useSafeAreaInsets();
   return (
     <View
@@ -297,8 +303,8 @@ const Drawer = createDrawerNavigator();
 function MainTabNavigator() {
   return (
     <Tab.Navigator
-      screenOptions={({route}) => ({
-        tabBarIcon: ({focused, color, size}) => {
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
           let iconName: string = 'help-outline'; // 设置默认图标
           if (route.name === 'HomeTab') {
             iconName = focused ? 'home-outline' : 'home-outline';
@@ -321,22 +327,22 @@ function MainTabNavigator() {
       <Tab.Screen
         name="HomeTab"
         component={HomeScreen}
-        options={{title: '首页'}}
+        options={{ title: '首页', headerShown: false }}
       />
       <Tab.Screen
         name="WalletTab"
         component={WalletScreen}
-        options={{title: '钱包'}}
+        options={{ title: '钱包', headerShown: false }}
       />
       <Tab.Screen
         name="DetailsTab"
         component={DetailsScreen}
-        options={{title: '详情'}}
+        options={{ title: '详情' }}
       />
       <Tab.Screen
         name="ProfileTab"
         component={ProfileScreen}
-        options={{title: '我的'}}
+        options={{ title: '我的' }}
       />
     </Tab.Navigator>
   );
@@ -357,14 +363,14 @@ const WalletScreen = () => {
 
       //   }
       // );
-      
+
       // 或者方法二：使用更简洁的方式
-       const provider = new ethers.JsonRpcProvider('HTTP://127.0.0.1:7545');
-      
+      const provider = new ethers.JsonRpcProvider('HTTP://127.0.0.1:7545');
+
       console.log('provider', provider);
       const signer = await provider.getSigner();
       console.log('signer', signer);
-      
+
       // 先获取地址，再获取余额
       const walletAddress = await signer.getAddress();
       setAddress(walletAddress);
@@ -432,22 +438,22 @@ function SettingsStackNavigator() {
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{title: '设置'}}
+        options={{ title: '设置' }}
       />
       <Stack.Screen
         name="SettingsDetail"
         component={SettingsDetailScreen}
-        options={{title: '设置详情'}}
+        options={{ title: '设置详情' }}
       />
       <Stack.Screen
         name="AccountSettings"
         component={AccountSettingsScreen}
-        options={{title: '账户设置'}}
+        options={{ title: '账户设置' }}
       />
       <Stack.Screen
         name="SecuritySettings"
         component={SecuritySettingsScreen}
-        options={{title: '安全设置'}}
+        options={{ title: '安全设置' }}
       />
     </Stack.Navigator>
   );
@@ -502,24 +508,24 @@ function HelpStackNavigator() {
       <Stack.Screen
         name="HelpCenter"
         component={HelpCenterScreen}
-        options={{title: '帮助中心'}}
+        options={{ title: '帮助中心' }}
       />
       <Stack.Screen
         name="FAQ"
         component={FAQScreen}
-        options={{title: '常见问题'}}
+        options={{ title: '常见问题' }}
       />
       <Stack.Screen
         name="Contact"
         component={ContactScreen}
-        options={{title: '联系我们'}}
+        options={{ title: '联系我们' }}
       />
     </Stack.Navigator>
   );
 }
 
 // 帮助中心页面
-const HelpCenterScreen = ({navigation}: {navigation: any}) => {
+const HelpCenterScreen = ({ navigation }: { navigation: any }) => {
   const insets = useSafeAreaInsets();
   return (
     <View
@@ -541,7 +547,7 @@ const HelpCenterScreen = ({navigation}: {navigation: any}) => {
         />
         <Button
           title="联系我们"
-          buttonStyle={[styles.button, {marginTop: 10}]}
+          buttonStyle={[styles.button, { marginTop: 10 }]}
           onPress={() => navigation.navigate('Contact')}
         />
       </Card>
@@ -601,13 +607,14 @@ function AppDrawerNavigator() {
         drawerLabelStyle: {
           marginLeft: -20,
         },
+        headerShown: false
       }}>
       <Drawer.Screen
         name="MainTabs"
         component={MainTabNavigator}
         options={{
           title: '首页',
-          drawerIcon: ({color, size}) => (
+          drawerIcon: ({ color, size }) => (
             <Icon name="home" type="ionicon" size={size} color={color} />
           ),
         }}
@@ -617,7 +624,7 @@ function AppDrawerNavigator() {
         component={SettingsStackNavigator}
         options={{
           title: '设置',
-          drawerIcon: ({color, size}) => (
+          drawerIcon: ({ color, size }) => (
             <Icon name="settings" type="ionicon" size={size} color={color} />
           ),
         }}
@@ -627,7 +634,7 @@ function AppDrawerNavigator() {
         component={HelpStackNavigator}
         options={{
           title: '帮助中心',
-          drawerIcon: ({color, size}) => (
+          drawerIcon: ({ color, size }) => (
             <Icon name="help-circle" type="ionicon" size={size} color={color} />
           ),
         }}
@@ -644,16 +651,7 @@ const Colors = {
   error: '#F44336',
   warning: '#FFC107',
 };
-const theme = createTheme({
-  lightColors: Colors,
-  darkColors: Colors,
-  mode: 'light' | 'dark',
-  components: {
-    componentName: (props, theme) => ({
-      // Props
-    }),
-  },
-});
+
 
 // 主应用组件
 const App = () => {
