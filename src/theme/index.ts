@@ -1,4 +1,5 @@
 import { createTheme } from '@rneui/themed';
+// import { LinearGradient } from 'react-native-linear-gradient';
 
 export const theme = createTheme({
     lightColors: {
@@ -46,21 +47,28 @@ export const theme = createTheme({
         xl: 32,
     },
     components: {
-        Button: {
-            raised: true,
-            containerStyle: {
-                borderRadius: 8,
-            },
-            buttonStyle: {
-                backgroundColor: '#fe7000',
-                padding: 12,
-            },
-            titleStyle: {
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: '#FFFFFF',
-            },
-        },
+        // Button: {
+        //     raised: true,
+        //     containerStyle: {
+        //         borderRadius: 8,
+        //         overflow: 'hidden',
+        //     },
+        //     buttonStyle: {
+        //         backgroundColor: 'transparent',
+        //         padding: 12,
+        //     },
+        //     titleStyle: {
+        //         fontSize: 16,
+        //         fontWeight: 'bold',
+        //         color: '#FFFFFF',
+        //     },
+        //     ViewComponent: LinearGradient,
+        //     linearGradientProps: {
+        //         colors: ['#fe7000', '#e43800'], // 渐变色从fe7000到e43800
+        //         start: { x: 0, y: 0 },
+        //         end: { x: 1, y: 0 },
+        //     },
+        // },
         Card: {
             containerStyle: {
                 borderRadius: 12,

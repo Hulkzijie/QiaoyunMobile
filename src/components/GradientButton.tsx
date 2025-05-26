@@ -1,13 +1,13 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
 import { Text } from '@rneui/themed';
 import LinearGradient from 'react-native-linear-gradient';
 
 interface GradientButtonProps {
     title: string;
     onPress: () => void;
-    style?: any;
-    textStyle?: any;
+    style?: ViewStyle;
+    textStyle?: TextStyle;
     disabled?: boolean;
 }
 
@@ -17,6 +17,7 @@ const GradientButton = ({ title, onPress, style, textStyle, disabled }: Gradient
             onPress={onPress}
             style={[styles.container, style]}
             disabled={disabled}
+            activeOpacity={0.8}
         >
             <LinearGradient
                 colors={['#fe7000', '#e43800']}
@@ -37,11 +38,20 @@ const styles = StyleSheet.create({
     container: {
         borderRadius: 8,
         overflow: 'hidden',
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
     gradient: {
-        padding: 12,
         alignItems: 'center',
         justifyContent: 'center',
+        minWidth: 120,
+        minHeight: 48,
     },
     disabledGradient: {
         opacity: 0.5,

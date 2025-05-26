@@ -3,7 +3,11 @@ import { View, StyleSheet } from 'react-native';
 import { Card, Text, Input } from '@rneui/themed';
 import GradientButton from './GradientButton';
 
-export const ExampleComponent = () => {
+const ExampleComponent = () => {
+    const handlePress = () => {
+        console.log('Button pressed');
+    };
+
     return (
         <View style={styles.container}>
             <Text h1>Welcome</Text>
@@ -15,7 +19,7 @@ export const ExampleComponent = () => {
                 <Text>Some quick example text to build on the card title and make up the bulk of the card's content.</Text>
                 <GradientButton
                     title="Action"
-                    onPress={() => { }}
+                    onPress={handlePress}
                     style={styles.buttonContainer}
                 />
             </Card>
@@ -27,15 +31,22 @@ export const ExampleComponent = () => {
 
             <GradientButton
                 title="Primary Button"
-                onPress={() => { }}
+                onPress={handlePress}
                 style={styles.buttonContainer}
             />
 
             <GradientButton
                 title="Disabled Button"
-                onPress={() => { }}
+                onPress={handlePress}
                 style={styles.buttonContainer}
                 disabled
+            />
+
+            <GradientButton
+                title="Custom Style"
+                onPress={handlePress}
+                style={styles.customButtonContainer}
+                textStyle={styles.customText}
             />
         </View>
     );
@@ -47,7 +58,18 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     buttonContainer: {
+    
+      
         marginTop: 16,
+    },
+    customButtonContainer: {
+        marginTop: 16,
+        minWidth: 200,
+        height: 40,
+    },
+    customText: {
+        fontSize: 18,
+        letterSpacing: 1,
     },
 });
 

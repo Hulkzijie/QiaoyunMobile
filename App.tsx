@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import {
-  Button,
-  Text,
-  Card,
-  ThemeProvider,
-  Icon,
-} from '@rneui/themed';
+import { Button, Text, Card, ThemeProvider, Icon } from '@rneui/themed';
 import { Provider } from 'react-redux';
 import { store } from './src/redux/store';
 import { theme } from './src/theme';
@@ -29,8 +23,15 @@ import { BottomSheetScreen } from './src/components/common/BottomSheetScreen';
 import Counter from './src/components/Counter';
 // 导入 SimpleBottomSheet 组件
 import SimpleBottomSheet from './src/components/common/SimpleBottomSheet';
+// 导入crypto getRandomValues shim(在shims**之前**)
+import 'react-native-get-random-values';
+import '@ethersproject/shims';
 import { ethers } from 'ethers';
 // import GradientButton from './src/components/GradientButton';
+import { LinearGradient } from 'react-native-linear-gradient';
+// 导入 ExampleComponent
+import ExampleComponent from './src/components/ExampleComponent';
+
 // 创建主屏幕组件
 const HomeScreen = ({ navigation }: { navigation: any }) => {
   const insets = useSafeAreaInsets();
@@ -111,6 +112,43 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
             setShowBottomSheet(true);
           }}
         />
+        {/* <Button
+          title={<CustomTitle />}
+          ViewComponent={LinearGradient}
+          titleStyle={{fontWeight: 'bold', fontSize: 18}}
+          linearGradientProps={{
+            colors: ['#FF9800', '#F44336'],
+            start:{x: 0, y: 0},
+            end: {x: 1, y: 0},
+          }}
+
+          buttonStyle={{
+            borderWidth: 0,
+            borderColor: 'transparent',
+            borderRadius: 20,
+          }}
+          containerStyle={{
+            width: 200,
+            marginHorizontal: 50,
+            marginVertical: 10,
+          }}
+          icon={{
+            name: 'arrow-right',
+            type: 'font-awesome',
+            size: 15,
+            color: 'white',
+          }}
+          iconRight
+          iconContainerStyle={{ marginLeft: 10, marginRight: -10 }}
+        /> */}
+        <LinearGradient
+          colors={['#fe7000', '#e43800']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.linearGradient}>
+          <Text style={{ color: '#fff' }}>Sign in with Facebook</Text>
+        </LinearGradient>
+
         <Button
           title="前往详情页 (Tab)"
           buttonStyle={[styles.button, { marginTop: 10 }]}
@@ -124,9 +162,9 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
           buttonStyle={[styles.button, { marginTop: 10 }]}
           onPress={() => navigation.navigate('SettingsStack')}
         />
-        <Button
+        {/* <Button
           title="测试按钮 (Stack)"
-          buttonStyle={[styles.button, { marginTop: 10 }]}
+          buttonStyle={[styles.button, {marginTop: 10}]}
           onPress={() => {
             setShowBottomSheet(true);
           }}
@@ -135,7 +173,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
           title="测试 BottomSheetScreen"
           buttonStyle={[
             styles.button,
-            { marginTop: 10, backgroundColor: '#FF5722' },
+            {marginTop: 10, backgroundColor: '#FF5722'},
           ]}
           onPress={() => {
             console.log('测试 BottomSheetScreen');
@@ -146,13 +184,13 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
           title="测试 SimpleBottomSheet"
           buttonStyle={[
             styles.button,
-            { marginTop: 10, backgroundColor: '#4CAF50' },
+            {marginTop: 10, backgroundColor: '#4CAF50'},
           ]}
           onPress={() => {
             console.log('测试 SimpleBottomSheet');
             setShowSimpleBottomSheet(true);
           }}
-        />
+        /> */}
         <Button
           title="测试以太坊钱包"
           buttonStyle={[
@@ -164,7 +202,6 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
             navigation.navigate('WalletTab');
           }}
         />
-
       </Card>
       {showBottomSheet && (
         <BottomSheet
@@ -219,7 +256,14 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
     </View>
   );
 };
-
+const CustomTitle = () => {
+  return (
+    <View style={{ flexDirection: 'column' }}>
+      <Text style={{ fontWeight: 'bold', fontSize: 18 }}>John Doe</Text>
+      <Text style={{ fontStyle: 'italic', fontSize: 12 }}>Minister of Magic</Text>
+    </View>
+  );
+};
 // 创建详情页组件
 const DetailsScreen = () => {
   const insets = useSafeAreaInsets();
@@ -242,7 +286,6 @@ const DetailsScreen = () => {
                   
                 /> */}
       </Card>
-      
     </View>
   );
 };
@@ -299,6 +342,15 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
+// 创建示例组件屏幕
+const ExampleScreen = () => {
+  return (
+    <View style={styles.container}>
+      <ExampleComponent />
+    </View>
+  );
+};
+
 // 定义底部选项卡导航组件name="home" type="material"
 function MainTabNavigator() {
   return (
@@ -314,6 +366,8 @@ function MainTabNavigator() {
             iconName = focused ? 'wallet' : 'wallet-outline';
           } else if (route.name === 'ProfileTab') {
             iconName = focused ? 'person' : 'person-outline';
+          } else if (route.name === 'ExampleTab') {
+            iconName = focused ? 'help' : 'help-outline';
           }
 
           return (
@@ -336,7 +390,7 @@ function MainTabNavigator() {
       />
       <Tab.Screen
         name="DetailsTab"
-        component={DetailsScreen}
+        component={ExampleScreen}
         options={{ title: '详情' }}
       />
       <Tab.Screen
@@ -344,6 +398,11 @@ function MainTabNavigator() {
         component={ProfileScreen}
         options={{ title: '我的' }}
       />
+      {/* <Tab.Screen
+        name="ExampleTab"
+        component={DetailsScreen}
+        options={{ title: '示例' }}
+      /> */}
     </Tab.Navigator>
   );
 }
@@ -355,24 +414,22 @@ const WalletScreen = () => {
   const [balance, setBalance] = useState('');
   const connectWallet = async () => {
     try {
-      // 方法一：使用网络名称作为单独参数
-      // const provider = new ethers.JsonRpcProvider(
-      //   'HTTP://127.0.0.1:7545',
-      //   {
-      //     chainId: 1337
-
-      //   }
-      // );
-
       // 或者方法二：使用更简洁的方式
       const provider = new ethers.JsonRpcProvider('HTTP://127.0.0.1:7545');
-
       console.log('provider', provider);
       const signer = await provider.getSigner();
       console.log('signer', signer);
-
+      const blockNumber = await provider.getBlockNumber();
+      console.log('blockNumber', blockNumber);
+      // const balance = await provider.getBalance("ethers.eth");
+      // console.log('balance', balance);
+      // const formartBalance = ethers.utils.formatEther(balance);
+      // console.log('formartBalance', formartBalance);
+      // const BigNumber = ethers.utils.parseEther("1.0");
+      // console.log('BigNumber', BigNumber);
       // 先获取地址，再获取余额
       const walletAddress = await signer.getAddress();
+      console.log('walletAddress', walletAddress);
       setAddress(walletAddress);
       setBalance(ethers.formatEther(await provider.getBalance(walletAddress)));
     } catch (error) {
@@ -393,6 +450,7 @@ const WalletScreen = () => {
         <Card.Divider />
         <Text style={styles.paragraph}>管理您的数字资产</Text>
         <Button onPress={connectWallet} title="连接钱包" />
+
         <Text>地址: {address}</Text>
         <Text>余额: {balance} ETH</Text>
         <Button
@@ -607,7 +665,7 @@ function AppDrawerNavigator() {
         drawerLabelStyle: {
           marginLeft: -20,
         },
-        headerShown: false
+        headerShown: false,
       }}>
       <Drawer.Screen
         name="MainTabs"
@@ -652,7 +710,6 @@ const Colors = {
   warning: '#FFC107',
 };
 
-
 // 主应用组件
 const App = () => {
   return (
@@ -671,18 +728,25 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-  },
-  paragraph: {
-    margin: 12,
-    fontSize: 16,
-    textAlign: 'center',
+    backgroundColor: '#fff',
   },
   button: {
-    backgroundColor: '#2089dc',
-    borderRadius: 6,
-    marginTop: 15,
+    backgroundColor: '#1b8d74',
+    borderRadius: 8,
+    padding: 12,
+  },
+  paragraph: {
+    margin: 24,
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  linearGradient: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    borderRadius: 8,
+    height:40,
+    width: 'auto',
   },
 });
 
