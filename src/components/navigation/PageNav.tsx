@@ -60,6 +60,7 @@ export const PageNav: React.FC<PageNavProps> = ({
           style={styles.leftButton}
         >
           <Icon
+           type="ionicon"
             name={iconName}
             size={20}
             color={theme.mode === 'dark' ? theme.colors.white : theme.colors.black}
@@ -91,6 +92,7 @@ export const PageNav: React.FC<PageNavProps> = ({
               style={styles.rightButton}
             >
               <Icon
+                type="ionicon"
                 name={item.iconName}
                 size={20}
                 color={theme.mode === 'dark' ? theme.colors.white : theme.colors.black}

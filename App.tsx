@@ -367,11 +367,11 @@ const ExampleScreen = ({ navigation }: { navigation: any }) => {
       <PageNav
         type="title"
         title="示例页面"
-        iconName="arrow-left"
+        iconName="chevron-back-outline"
         onPress={() => navigation.goBack()}
         rightSide={[
           {
-            iconName: "more-vert",
+            iconName: "ellipsis-vertical-outline",
             onPress: () => console.log('More options pressed'),
           }
         ]}
