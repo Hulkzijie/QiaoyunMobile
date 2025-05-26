@@ -412,7 +412,7 @@ const CustomTabBar = ({
         if (route.name === 'HomeTab') {
           iconName = isFocused ? 'home' : 'home-outline';
         } else if (route.name === 'DetailsTab') {
-          iconName = isFocused ? 'list' : 'list-outline';
+          iconName = isFocused ? 'apps' : 'apps-outline';
         } else if (route.name === 'WalletTab') {
           iconName = isFocused ? 'wallet' : 'wallet-outline';
         } else if (route.name === 'ProfileTab') {

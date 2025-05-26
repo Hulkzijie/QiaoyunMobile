@@ -52,6 +52,7 @@ export const TopNav: React.FC<TopNavProps> = ({
         {scanOnPress && (
           <TouchableOpacity onPress={scanOnPress} style={styles.iconButton}>
             <Icon
+              type="ionicon"
               name="scan"
               size={24}
               color={currentTheme.mode === 'dark' ? currentTheme.colors.white : currentTheme.colors.black}
@@ -62,7 +63,8 @@ export const TopNav: React.FC<TopNavProps> = ({
         {activityCenterOnPress && (
           <TouchableOpacity onPress={activityCenterOnPress} style={styles.iconButton}>
             <Icon
-              name="notification"
+            type="ionicon"
+              name="notifications-outline"
               size={24}
               color={currentTheme.mode === 'dark' ? currentTheme.colors.white : currentTheme.colors.black}
             />
