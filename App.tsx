@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Button, Text, Card, ThemeProvider, Icon } from '@rneui/themed';
 import { Provider } from 'react-redux';
 import { store } from './src/redux/store';
@@ -31,6 +31,12 @@ import { ethers } from 'ethers';
 import { LinearGradient } from 'react-native-linear-gradient';
 // 导入 ExampleComponent
 import ExampleComponent from './src/components/ExampleComponent';
+import {
+  BottomTabBarProps,
+  BottomTabNavigationOptions,
+} from '@react-navigation/bottom-tabs';
+import { TopNav } from './src/components/navigation/TopNav';
+import { PageNav } from './src/components/navigation/PageNav';
 
 // 创建主屏幕组件
 const HomeScreen = ({ navigation }: { navigation: any }) => {
@@ -100,6 +106,17 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
           paddingBottom: insets.bottom,
         },
       ]}>
+      <TopNav
+        avatarOnPress={() => navigation.navigate('ProfileTab')}
+        scanOnPress={() => console.log('Scan pressed')}
+        activityCenterOnPress={() => console.log('Activity center pressed')}
+        avatarProps={{
+          image: 'https://randomuser.me/api/portraits/men/1.jpg',
+          name: 'John Doe',
+        }}
+        notificationCount={5}
+      />
+
       <Card>
         <Card.Title>欢迎使用乔云DApp</Card.Title>
         <Card.Divider />
@@ -150,11 +167,11 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
         </LinearGradient>
 
         <Button
-          title="前往详情页 (Tab)"
+          title="示例页面 (Tab)"
           buttonStyle={[styles.button, { marginTop: 10 }]}
           onPress={() => {
-            console.log('正在导航到详情页...');
-            navigation.navigate('MainTabs', { screen: 'DetailsTab' });
+            console.log('ExampleScreen...');
+            navigation.navigate('DetailsTab');
           }}
         />
         <Button
@@ -343,66 +360,120 @@ const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 // 创建示例组件屏幕
-const ExampleScreen = () => {
+const ExampleScreen = ({ navigation }: { navigation: any }) => {
+  const insets = useSafeAreaInsets();
   return (
-    <View style={styles.container}>
-      <ExampleComponent />
+    <View style={[styles.container]}>
+      <PageNav
+        type="title"
+        title="示例页面"
+        iconName="arrow-left"
+        onPress={() => navigation.goBack()}
+        rightSide={[
+          {
+            iconName: "more-vert",
+            onPress: () => console.log('More options pressed'),
+          }
+        ]}
+      />
+      <View style={[styles.content, { paddingTop: 16 }]}>
+        <ExampleComponent />
+      </View>
     </View>
   );
 };
 
-// 定义底部选项卡导航组件name="home" type="material"
+// 自定义底部导航栏组件
+const CustomTabBar = ({
+  state,
+  descriptors,
+  navigation,
+}: BottomTabBarProps) => {
+  return (
+    <View style={styles.tabBarContainer}>
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const label = options.tabBarLabel || options.title || route.name;
+        const isFocused = state.index === index;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        let iconName = 'help-outline';
+        if (route.name === 'HomeTab') {
+          iconName = isFocused ? 'home' : 'home-outline';
+        } else if (route.name === 'DetailsTab') {
+          iconName = isFocused ? 'list' : 'list-outline';
+        } else if (route.name === 'WalletTab') {
+          iconName = isFocused ? 'wallet' : 'wallet-outline';
+        } else if (route.name === 'ProfileTab') {
+          iconName = isFocused ? 'person' : 'person-outline';
+        }
+
+        return (
+          <TouchableOpacity
+            key={index}
+            onPress={onPress}
+            style={styles.tabItem}>
+            <View style={styles.tabContent}>
+              <Icon
+                name={iconName}
+                type="ionicon"
+                size={24}
+                color={isFocused ? '#fe7000' : '#666666'}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  isFocused ? styles.activeLabel : styles.inactiveLabel,
+                ]}>
+                {String(label)}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+};
+
+// 定义底部选项卡导航组件
 function MainTabNavigator() {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: string = 'help-outline'; // 设置默认图标
-          if (route.name === 'HomeTab') {
-            iconName = focused ? 'home-outline' : 'home-outline';
-          } else if (route.name === 'DetailsTab') {
-            iconName = focused ? 'settings-outline' : 'list-outline';
-          } else if (route.name === 'WalletTab') {
-            iconName = focused ? 'wallet' : 'wallet-outline';
-          } else if (route.name === 'ProfileTab') {
-            iconName = focused ? 'person' : 'person-outline';
-          } else if (route.name === 'ExampleTab') {
-            iconName = focused ? 'help' : 'help-outline';
-          }
-
-          return (
-            <Icon name={iconName} type="ionicon" size={size} color={color} />
-          );
-        },
-        tabBarActiveTintColor: '#1E88E5',
-        tabBarInactiveTintColor: 'gray',
-        headerShown: true,
-      })}>
+      tabBar={props => <CustomTabBar {...props} />}
+      screenOptions={{
+        headerShown: false,
+      }}>
       <Tab.Screen
         name="HomeTab"
         component={HomeScreen}
-        options={{ title: '首页', headerShown: false }}
+        options={{ title: '首页' }}
       />
       <Tab.Screen
         name="WalletTab"
         component={WalletScreen}
-        options={{ title: '钱包', headerShown: false }}
+        options={{ title: '钱包' }}
       />
       <Tab.Screen
         name="DetailsTab"
         component={ExampleScreen}
-        options={{ title: '详情' }}
+        options={{ title: '示例' }}
       />
       <Tab.Screen
         name="ProfileTab"
         component={ProfileScreen}
         options={{ title: '我的' }}
       />
-      {/* <Tab.Screen
-        name="ExampleTab"
-        component={DetailsScreen}
-        options={{ title: '示例' }}
-      /> */}
     </Tab.Navigator>
   );
 }
@@ -700,15 +771,7 @@ function AppDrawerNavigator() {
     </Drawer.Navigator>
   );
 }
-const Colors = {
-  primary: '#1E88E5',
-  secondary: '#FF5722',
-  background: '#F5F5F5',
-  text: '#333333',
-  success: '#4CAF50',
-  error: '#F44336',
-  warning: '#FFC107',
-};
+
 
 // 主应用组件
 const App = () => {
@@ -730,6 +793,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  content: {
+    flex: 1,
+    padding: 16,
+  },
   button: {
     backgroundColor: '#1b8d74',
     borderRadius: 8,
@@ -745,8 +812,37 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 10,
     borderRadius: 8,
-    height:40,
+    height: 40,
     width: 'auto',
+  },
+  tabBarContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#ffffff',
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    height: 80,
+    paddingBottom: 20,
+    paddingTop: 8,
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 4,
+  },
+  activeLabel: {
+    color: '#fe7000',
+  },
+  inactiveLabel: {
+    color: '#666666',
   },
 });
 

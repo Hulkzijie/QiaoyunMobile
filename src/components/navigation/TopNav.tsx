@@ -1,17 +1,15 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-
-
-import { Avatar } from '../Avatar';
-import { colors } from '../../theme/colors';
+import { Avatar } from '@rneui/themed';
 import {
   Button,
   Text,
   Card,
   ThemeProvider,
   Icon,
-  createTheme,
+  useTheme,
 } from '@rneui/themed';
+
 interface TopNavProps {
   avatarOnPress?: () => void;
   scanOnPress?: () => void;
@@ -36,11 +34,11 @@ export const TopNav: React.FC<TopNavProps> = ({
   blur = false,
   customizationColor,
   avatarProps,
-  notificationCount,
+  notificationCount = 0,
   notification,
   containerStyle,
 }) => {
-  const theme = createTheme();
+  const { theme: currentTheme } = useTheme();
 
   return (
     <View style={[styles.container, blur && styles.blurContainer, containerStyle]}>
@@ -53,7 +51,11 @@ export const TopNav: React.FC<TopNavProps> = ({
       <View style={styles.rightSection}>
         {scanOnPress && (
           <TouchableOpacity onPress={scanOnPress} style={styles.iconButton}>
-            <Icon name="scan" size={24} color={theme.mode === 'dark' ? colors.white : colors.black} />
+            <Icon
+              name="scan"
+              size={24}
+              color={currentTheme.mode === 'dark' ? currentTheme.colors.white : currentTheme.colors.black}
+            />
           </TouchableOpacity>
         )}
 
@@ -62,11 +64,11 @@ export const TopNav: React.FC<TopNavProps> = ({
             <Icon
               name="notification"
               size={24}
-              color={theme.mode === 'dark' ? colors.white : colors.black}
+              color={currentTheme.mode === 'dark' ? currentTheme.colors.white : currentTheme.colors.black}
             />
             {notificationCount > 0 && (
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationCount}>
+              <View style={[styles.notificationBadge, { backgroundColor: currentTheme.colors.error }]}>
+                <Text style={[styles.notificationCount, { color: currentTheme.colors.white }]}>
                   {notificationCount > 99 ? '99+' : notificationCount}
                 </Text>
               </View>
@@ -111,7 +113,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 4,
     right: 4,
-    backgroundColor: colors.red,
     borderRadius: 10,
     minWidth: 20,
     height: 20,
@@ -119,7 +120,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   notificationCount: {
-    color: colors.white,
     fontSize: 12,
     fontWeight: '600',
   },

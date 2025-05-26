@@ -1,19 +1,19 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-
+import { View, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import {
-    Button,
-    Text,
-    Card,
-    ThemeProvider,
-    Icon,
-    createTheme,
-  } from '@rneui/themed';
+  Button,
+  Text,
+  Card,
+  ThemeProvider,
+  Icon,
+  useTheme,
+} from '@rneui/themed';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface PageNavProps {
   type?: 'title' | 'no-title' | 'dropdown';
   title?: string;
-  textAlign?: 'left' | 'center';
+  textAlign?: 'flex-start' | 'center';
   iconName?: string;
   background?: 'blur' | 'photo' | 'white';
   rightSide?: Array<{
@@ -39,54 +39,41 @@ export const PageNav: React.FC<PageNavProps> = ({
   centerOpacity,
   blur = false,
 }) => {
-  const theme = createTheme();
-  const colors = {
-    white: '#ffffff',
-    black: '#000000',
-    neutral100: '#F4F4F4',
-    neutral200: '#E5E5E5',
-    neutral300: '#D4D4D4',
-    neutral400: '#A2A2A2',
-    neutral500: '#737373',
-    neutral600: '#525252',
-    neutral700: '#404040',
-    neutral800: '#262626',
-    neutral900: '#171717',
-    primary100: '#D1E9FF',
-    primary200: '#A5D8FF',
-    primary300: '#74C0FC',
-    primary400: '#53B1FD',
-    primary500: '#0091FF',
-    primary600: '#007AFF',
-  }
+  const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
+
   const getBackgroundStyle = () => {
     if (blur) {
       return styles.blurBackground;
     }
     return {
-      backgroundColor: theme.mode === 'dark' ? colors.neutral100 : colors.white,
+      backgroundColor: theme.mode === 'dark' ? theme.colors.grey5 : theme.colors.white,
     };
   };
 
   return (
-    <View style={[styles.container, getBackgroundStyle()]}>
+    <View style={[styles.container, getBackgroundStyle(), { paddingTop: insets.top }]}>
       {iconName && (
         <TouchableOpacity
           onPress={onPress}
           accessibilityLabel={accessibilityLabel}
           style={styles.leftButton}
         >
-          <Icon name={iconName} size={20} color={theme.mode === 'dark' ? colors.white : colors.black} />
+          <Icon
+            name={iconName}
+            size={20}
+            color={theme.mode === 'dark' ? theme.colors.white : theme.colors.black}
+          />
         </TouchableOpacity>
       )}
 
       {type === 'title' && title && (
-        <View style={[styles.titleContainer, { alignItems:'center' }]}>
+        <View style={[styles.titleContainer, { alignItems: textAlign }]}>
           <Text
             style={[
               styles.title,
               { opacity: centerOpacity ?? 1 },
-              { color: theme.mode === 'dark' ? colors.white : colors.black },
+              { color: theme.mode === 'dark' ? theme.colors.white : theme.colors.black },
             ]}
           >
             {title}
@@ -106,7 +93,7 @@ export const PageNav: React.FC<PageNavProps> = ({
               <Icon
                 name={item.iconName}
                 size={20}
-                color={theme.mode === 'dark' ? colors.white : colors.black}
+                color={theme.mode === 'dark' ? theme.colors.white : theme.colors.black}
               />
             </TouchableOpacity>
           ))}
@@ -120,19 +107,31 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 44,
+    minHeight: 44,
     paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    zIndex: 1000,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
   blurBackground: {
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    backdropFilter: 'blur(10px)',
   },
   leftButton: {
     padding: 8,
+    minWidth: 44,
+    alignItems: 'center',
   },
   titleContainer: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 17,
@@ -145,5 +144,7 @@ const styles = StyleSheet.create({
   rightButton: {
     padding: 8,
     marginLeft: 8,
+    minWidth: 44,
+    alignItems: 'center',
   },
 });
