@@ -111,8 +111,8 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
         scanOnPress={() => console.log('Scan pressed')}
         activityCenterOnPress={() => console.log('Activity center pressed')}
         avatarProps={{
-          image: 'https://randomuser.me/api/portraits/men/1.jpg',
           name: 'John Doe',
+          source:'https://randomuser.me/api/portraits/men/1.jpg'
         }}
         notificationCount={5}
       />

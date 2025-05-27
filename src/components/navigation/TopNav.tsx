@@ -18,8 +18,8 @@ interface TopNavProps {
   blur?: boolean;
   customizationColor?: string;
   avatarProps?: {
-    image?: string;
     name?: string;
+    source?:string
   };
   notificationCount?: number;
   notification?: 'mention' | 'seen' | 'notification';
@@ -44,7 +44,12 @@ export const TopNav: React.FC<TopNavProps> = ({
     <View style={[styles.container, blur && styles.blurContainer, containerStyle]}>
       <View style={styles.leftSection}>
         <TouchableOpacity onPress={avatarOnPress} style={styles.avatarButton}>
-          <Avatar {...avatarProps} size={32} />
+          <Avatar {...avatarProps} size={32}  rounded/>
+          {/* <Avatar
+              size={64}
+              rounded
+
+            /> */}
         </TouchableOpacity>
       </View>
 
