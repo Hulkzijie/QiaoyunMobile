@@ -37,6 +37,7 @@ import {
 } from '@react-navigation/bottom-tabs';
 import { TopNav } from './src/components/navigation/TopNav';
 import { PageNav } from './src/components/navigation/PageNav';
+import { SpeedDial } from '@rneui/themed';
 
 // 创建主屏幕组件
 const HomeScreen = ({ navigation }: { navigation: any }) => {
@@ -96,7 +97,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
       />
     </View>
   );
-
+  const [open, setOpen] = React.useState(false);
   return (
     <View
       style={[
@@ -107,12 +108,13 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
         },
       ]}>
       <TopNav
-        avatarOnPress={() => navigation.navigate('ProfileTab')}
+        // avatarOnPress={() => navigation.navigate('OtherTab1')}
+        avatarOnPress={() => navigation.navigate('OtherStack', { screen: 'OtherTab' })}
         scanOnPress={() => console.log('Scan pressed')}
         activityCenterOnPress={() => console.log('Activity center pressed')}
         avatarProps={{
           name: 'John Doe',
-          source:'https://randomuser.me/api/portraits/men/1.jpg'
+          source: 'https://randomuser.me/api/portraits/men/1.jpg'
         }}
         notificationCount={5}
       />
@@ -270,6 +272,24 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
           </View>
         </SimpleBottomSheet>
       )}
+      <SpeedDial
+        isOpen={open}
+        icon={{ name: 'edit', color: '#fff' }}
+        openIcon={{ name: 'close', color: '#fff' }}
+        onOpen={() => setOpen(!open)}
+        onClose={() => setOpen(!open)}
+      >
+        <SpeedDial.Action
+          icon={{ name: 'add', color: '#fff' }}
+          title="Add"
+          onPress={() => console.log('Add Something')}
+        />
+        <SpeedDial.Action
+          icon={{ name: 'delete', color: '#fff' }}
+          title="Delete"
+          onPress={() => console.log('Delete Something')}
+        />
+      </SpeedDial>
     </View>
   );
 };
@@ -281,31 +301,7 @@ const CustomTitle = () => {
     </View>
   );
 };
-// 创建详情页组件
-const DetailsScreen = () => {
-  const insets = useSafeAreaInsets();
-  return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
-      ]}>
-      <Card>
-        <Card.Title>详情页面</Card.Title>
-        <Card.Divider />
-        <Text style={styles.paragraph}>这是一个详情页面示例</Text>
-        {/* <GradientButton
-                    title="Action"
-                    onPress={() => { }}
-                  
-                /> */}
-      </Card>
-    </View>
-  );
-};
+
 
 // 创建设置页面组件
 const SettingsScreen = ({ navigation }: { navigation: any }) => {
@@ -393,6 +389,12 @@ const CustomTabBar = ({
     <View style={styles.tabBarContainer}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
+        
+        // 如果设置了 tabBarButton 为 null，则不显示该标签
+        if (options.tabBarButton === null) {
+          return null;
+        }
+
         const label = options.tabBarLabel || options.title || route.name;
         const isFocused = state.index === index;
 
@@ -408,29 +410,17 @@ const CustomTabBar = ({
           }
         };
 
-        let iconName = 'help-outline';
-        if (route.name === 'HomeTab') {
-          iconName = isFocused ? 'home' : 'home-outline';
-        } else if (route.name === 'DetailsTab') {
-          iconName = isFocused ? 'apps' : 'apps-outline';
-        } else if (route.name === 'WalletTab') {
-          iconName = isFocused ? 'wallet' : 'wallet-outline';
-        } else if (route.name === 'ProfileTab') {
-          iconName = isFocused ? 'person' : 'person-outline';
-        }
-
         return (
           <TouchableOpacity
             key={index}
             onPress={onPress}
             style={styles.tabItem}>
             <View style={styles.tabContent}>
-              <Icon
-                name={iconName}
-                type="ionicon"
-                size={24}
-                color={isFocused ? '#fe7000' : '#666666'}
-              />
+              {options.tabBarIcon?.({
+                focused: isFocused,
+                color: isFocused ? '#fe7000' : '#666666',
+                size: 24
+              })}
               <Text
                 style={[
                   styles.tabLabel,
@@ -446,36 +436,44 @@ const CustomTabBar = ({
   );
 };
 
-// 定义底部选项卡导航组件
-function MainTabNavigator() {
+// 其他页面组件
+
+const OtherScreen = ({ navigation }: { navigation: any }) => {
+  const insets = useSafeAreaInsets();
   return (
-    <Tab.Navigator
-      tabBar={props => <CustomTabBar {...props} />}
-      screenOptions={{
-        headerShown: false,
-      }}>
-      <Tab.Screen
-        name="HomeTab"
-        component={HomeScreen}
-        options={{ title: '首页' }}
+    <View style={[styles.container]}>
+      <PageNav
+        type="title"
+        title="其他页面"
+        iconName="chevron-back-outline"
+        onPress={() => navigation.goBack()}
+        rightSide={[
+          {
+            iconName: "ellipsis-vertical-outline",
+            onPress: () => console.log('More options pressed'),
+          }
+        ]}
       />
-      <Tab.Screen
-        name="WalletTab"
-        component={WalletScreen}
-        options={{ title: '钱包' }}
-      />
-      <Tab.Screen
-        name="DetailsTab"
-        component={ExampleScreen}
-        options={{ title: '示例' }}
-      />
-      <Tab.Screen
-        name="ProfileTab"
-        component={ProfileScreen}
-        options={{ title: '我的' }}
-      />
-    </Tab.Navigator>
+      <View style={[styles.content, { paddingTop: 16 }]}>
+        <ExampleComponent />
+      </View>
+    </View>
   );
+};
+// 交易页面组件
+const TradeScreen = () => {
+  return (
+    <View style={{flex:1}}>
+        <LinearGradient
+        colors={[ '#0d0d0d','#712e09',]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 1, y: 0 }}
+        style={{height:300}}>
+        <Text style={{ color: '#fff' }}>Sign in with Facebook</Text>
+        </LinearGradient>
+    </View>
+  )
+
 }
 
 // 钱包页面组件
@@ -485,20 +483,12 @@ const WalletScreen = () => {
   const [balance, setBalance] = useState('');
   const connectWallet = async () => {
     try {
-      // 或者方法二：使用更简洁的方式
       const provider = new ethers.JsonRpcProvider('HTTP://127.0.0.1:7545');
       console.log('provider', provider);
       const signer = await provider.getSigner();
       console.log('signer', signer);
       const blockNumber = await provider.getBlockNumber();
       console.log('blockNumber', blockNumber);
-      // const balance = await provider.getBalance("ethers.eth");
-      // console.log('balance', balance);
-      // const formartBalance = ethers.utils.formatEther(balance);
-      // console.log('formartBalance', formartBalance);
-      // const BigNumber = ethers.utils.parseEther("1.0");
-      // console.log('BigNumber', BigNumber);
-      // 先获取地址，再获取余额
       const walletAddress = await signer.getAddress();
       console.log('walletAddress', walletAddress);
       setAddress(walletAddress);
@@ -521,7 +511,6 @@ const WalletScreen = () => {
         <Card.Divider />
         <Text style={styles.paragraph}>管理您的数字资产</Text>
         <Button onPress={connectWallet} title="连接钱包" />
-
         <Text>地址: {address}</Text>
         <Text>余额: {balance} ETH</Text>
         <Button
@@ -560,218 +549,147 @@ const ProfileScreen = () => {
   );
 };
 
-// 设置堆栈导航
-function SettingsStackNavigator() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{ title: '设置' }}
-      />
-      <Stack.Screen
-        name="SettingsDetail"
-        component={SettingsDetailScreen}
-        options={{ title: '设置详情' }}
-      />
-      <Stack.Screen
-        name="AccountSettings"
-        component={AccountSettingsScreen}
-        options={{ title: '账户设置' }}
-      />
-      <Stack.Screen
-        name="SecuritySettings"
-        component={SecuritySettingsScreen}
-        options={{ title: '安全设置' }}
-      />
-    </Stack.Navigator>
-  );
+const OtherScreen1 = () => {
+  return <View>
+    <Text>其他页面1</Text>
+  </View>
 }
 
-// 账户设置页面
-const AccountSettingsScreen = () => {
-  const insets = useSafeAreaInsets();
-  return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
-      ]}>
-      <Card>
-        <Card.Title>账户设置</Card.Title>
-        <Card.Divider />
-        <Text style={styles.paragraph}>管理您的账户信息</Text>
-      </Card>
-    </View>
-  );
-};
-
-// 安全设置页面
-const SecuritySettingsScreen = () => {
-  const insets = useSafeAreaInsets();
-  return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
-      ]}>
-      <Card>
-        <Card.Title>安全设置</Card.Title>
-        <Card.Divider />
-        <Text style={styles.paragraph}>管理您的安全选项</Text>
-      </Card>
-    </View>
-  );
-};
-
-// 帮助中心导航
-function HelpStackNavigator() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="HelpCenter"
-        component={HelpCenterScreen}
-        options={{ title: '帮助中心' }}
-      />
-      <Stack.Screen
-        name="FAQ"
-        component={FAQScreen}
-        options={{ title: '常见问题' }}
-      />
-      <Stack.Screen
-        name="Contact"
-        component={ContactScreen}
-        options={{ title: '联系我们' }}
-      />
-    </Stack.Navigator>
-  );
+const OtherScreen2 = () => {  
+  return <View>
+    <Text>其他页面2</Text>
+  </View>
 }
 
-// 帮助中心页面
-const HelpCenterScreen = ({ navigation }: { navigation: any }) => {
-  const insets = useSafeAreaInsets();
-  return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
-      ]}>
-      <Card>
-        <Card.Title>帮助中心</Card.Title>
-        <Card.Divider />
-        <Text style={styles.paragraph}>获取帮助和支持</Text>
-        <Button
-          title="常见问题"
-          buttonStyle={styles.button}
-          onPress={() => navigation.navigate('FAQ')}
-        />
-        <Button
-          title="联系我们"
-          buttonStyle={[styles.button, { marginTop: 10 }]}
-          onPress={() => navigation.navigate('Contact')}
-        />
-      </Card>
-    </View>
-  );
-};
+const apiRoutes = [
+  {
+    name: 'OtherTab1',
+    component: OtherScreen1,
+    title: '其他1',
+    showInTab: false
+  },
+  { 
+    name: 'OtherTab2',
+    component: OtherScreen2,
+    title: '其他2',
+    showInTab: false
+  }
+]
 
-// 常见问题页面
-const FAQScreen = () => {
-  const insets = useSafeAreaInsets();
+// 定义底部选项卡导航组件
+function MainTabNavigator() {
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
-      ]}>
-      <Card>
-        <Card.Title>常见问题</Card.Title>
-        <Card.Divider />
-        <Text style={styles.paragraph}>这里是常见问题解答</Text>
-      </Card>
-    </View>
-  );
-};
-
-// 联系我们页面
-const ContactScreen = () => {
-  const insets = useSafeAreaInsets();
-  return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
-      ]}>
-      <Card>
-        <Card.Title>联系我们</Card.Title>
-        <Card.Divider />
-        <Text style={styles.paragraph}>联系方式和客服信息</Text>
-      </Card>
-    </View>
-  );
-};
-
-// 抽屉导航组件
-function AppDrawerNavigator() {
-  return (
-    <Drawer.Navigator
+    <Tab.Navigator
+      tabBar={props => <CustomTabBar {...props} />}
       screenOptions={{
-        drawerActiveTintColor: '#1E88E5',
-        drawerInactiveTintColor: 'gray',
-        drawerLabelStyle: {
-          marginLeft: -20,
-        },
         headerShown: false,
+        tabBarStyle: { backgroundColor: '#ffffff' },
       }}>
-      <Drawer.Screen
-        name="MainTabs"
-        component={MainTabNavigator}
-        options={{
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeScreen}
+        options={{ 
           title: '首页',
-          drawerIcon: ({ color, size }) => (
-            <Icon name="home" type="ionicon" size={size} color={color} />
-          ),
+          tabBarIcon: ({ focused }) => (
+            <Icon
+              name={focused ? 'home' : 'home-outline'}
+              type="ionicon"
+              size={24}
+              color={focused ? '#fe7000' : '#666666'}
+            />
+          )
         }}
       />
-      <Drawer.Screen
-        name="SettingsStack"
-        component={SettingsStackNavigator}
-        options={{
-          title: '设置',
-          drawerIcon: ({ color, size }) => (
-            <Icon name="settings" type="ionicon" size={size} color={color} />
-          ),
+      <Tab.Screen
+        name="WalletTab"
+        component={WalletScreen}
+        options={{ 
+          title: '钱包',
+          tabBarIcon: ({ focused }) => (
+            <Icon
+              name={focused ? 'wallet' : 'wallet-outline'}
+              type="ionicon"
+              size={24}
+              color={focused ? '#fe7000' : '#666666'}
+            />
+          )
         }}
       />
-      <Drawer.Screen
-        name="HelpStack"
-        component={HelpStackNavigator}
-        options={{
-          title: '帮助中心',
-          drawerIcon: ({ color, size }) => (
-            <Icon name="help-circle" type="ionicon" size={size} color={color} />
-          ),
+      <Tab.Screen
+        name="TradeTab"
+        component={TradeScreen}
+        options={{ 
+          title: '交易',
+          tabBarIcon: ({ focused }) => (
+            <Icon
+              name={focused ? 'repeat' : 'repeat-outline'}
+              type="ionicon"
+              size={24}
+              color={focused ? '#fe7000' : '#666666'}
+            />
+          )
         }}
       />
-    </Drawer.Navigator>
+      <Tab.Screen
+        name="DetailsTab"
+        component={ExampleScreen}
+        options={{ 
+          title: '示例',
+          tabBarIcon: ({ focused }) => (
+            <Icon
+              name={focused ? 'apps' : 'apps-outline'}
+              type="ionicon"
+              size={24}
+              color={focused ? '#fe7000' : '#666666'}
+            />
+          )
+        }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileScreen}
+        options={{ 
+          title: '我的',
+          tabBarIcon: ({ focused }) => (
+            <Icon
+              name={focused ? 'person' : 'person-outline'}
+              type="ionicon"
+              size={24}
+              color={focused ? '#fe7000' : '#666666'}
+            />
+          )
+        }}
+      />
+    </Tab.Navigator>
   );
 }
 
+// 创建其他页面的堆栈导航
+function OtherStackNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="OtherTab" component={OtherScreen} />
+      {apiRoutes.map(route => (
+        <Stack.Screen
+          key={route.name}
+          name={route.name}
+          component={route.component}
+          options={{ title: route.title }}
+        />
+      ))}
+    </Stack.Navigator>
+  );
+}
+
+// 主应用导航
+function AppNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={MainTabNavigator} />
+      <Stack.Screen name="OtherStack" component={OtherStackNavigator} />
+    </Stack.Navigator>
+  );
+}
 
 // 主应用组件
 const App = () => {
@@ -780,7 +698,7 @@ const App = () => {
       <SafeAreaProvider>
         <ThemeProvider theme={theme}>
           <NavigationContainer>
-            <AppDrawerNavigator />
+            <AppNavigator />
           </NavigationContainer>
         </ThemeProvider>
       </SafeAreaProvider>

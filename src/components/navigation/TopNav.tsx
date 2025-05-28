@@ -44,7 +44,7 @@ export const TopNav: React.FC<TopNavProps> = ({
     <View style={[styles.container, blur && styles.blurContainer, containerStyle]}>
       <View style={styles.leftSection}>
         <TouchableOpacity onPress={avatarOnPress} style={styles.avatarButton}>
-          <Avatar {...avatarProps} size={32}  rounded/>
+          <Avatar source={{ uri: avatarProps?.source }} size={32}  rounded/>
           {/* <Avatar
               size={64}
               rounded
