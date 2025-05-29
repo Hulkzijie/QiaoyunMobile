@@ -39,6 +39,22 @@ import { TopNav } from './src/components/navigation/TopNav';
 import { PageNav } from './src/components/navigation/PageNav';
 import { SpeedDial } from '@rneui/themed';
 
+import LoginScreen from './src/views/auth/Login';
+import RegisterScreen from './src/views/auth/Register';
+// 连接
+import { createPublicClient, http } from 'viem'
+import { sepolia } from 'viem/chains'
+// // 导航到抽屉菜单中的页面
+// navigation.navigate('SettingsStack');
+// navigation.navigate('HelpStack');
+
+// // 导航到底部标签页
+// navigation.navigate('MainTabs', { screen: 'HomeTab' });
+// navigation.navigate('MainTabs', { screen: 'WalletTab' });
+
+// // 导航到其他页面（不在底部标签栏显示的页面）
+// navigation.navigate('OtherStack', { screen: 'OtherTab' });
+// navigation.navigate('OtherStack', { screen: 'OtherTab1' });
 // 创建主屏幕组件
 const HomeScreen = ({ navigation }: { navigation: any }) => {
   const insets = useSafeAreaInsets();
@@ -98,20 +114,27 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
     </View>
   );
   const [open, setOpen] = React.useState(false);
+  
+  const openLeftDrawer = () => {
+    const parent = navigation.getParent();
+    if (parent) {
+      parent.openDrawer();
+    }
+  };
+
+  const openRightDrawer = () => {
+    const rootNavigation = navigation.getParent()?.getParent();
+    if (rootNavigation) {
+      rootNavigation.openDrawer();
+    }
+  };
+
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
-      ]}>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <TopNav
-        // avatarOnPress={() => navigation.navigate('OtherTab1')}
         avatarOnPress={() => navigation.navigate('OtherStack', { screen: 'OtherTab' })}
         scanOnPress={() => console.log('Scan pressed')}
-        activityCenterOnPress={() => console.log('Activity center pressed')}
+        activityCenterOnPress={openRightDrawer}
         avatarProps={{
           name: 'John Doe',
           source: 'https://randomuser.me/api/portraits/men/1.jpg'
@@ -439,7 +462,6 @@ const CustomTabBar = ({
 // 其他页面组件
 
 const OtherScreen = ({ navigation }: { navigation: any }) => {
-  const insets = useSafeAreaInsets();
   return (
     <View style={[styles.container]}>
       <PageNav
@@ -456,14 +478,16 @@ const OtherScreen = ({ navigation }: { navigation: any }) => {
       />
       <View style={[styles.content, { paddingTop: 16 }]}>
         <ExampleComponent />
+        
       </View>
     </View>
   );
 };
 // 交易页面组件
-const TradeScreen = () => {
+const TradeScreen = () => { 
+
   return (
-    <View style={{flex:1}}>
+    <View  style={[styles.container,{flex:1}]}>
         <LinearGradient
         colors={[ '#0d0d0d','#712e09',]}
         start={{ x: 0, y: 1 }}
@@ -497,6 +521,10 @@ const WalletScreen = () => {
       console.error('连接钱包错误:', error);
     }
   };
+  // const publicClient = createPublicClient({
+  //   chain: sepolia,
+  //   transport: http(),
+  // });
   return (
     <View
       style={[
@@ -580,7 +608,6 @@ const apiRoutes = [
 function MainTabNavigator() {
   return (
     <Tab.Navigator
-      tabBar={props => <CustomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarStyle: { backgroundColor: '#ffffff' },
@@ -601,13 +628,13 @@ function MainTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="WalletTab"
+        name="MarketTab"
         component={WalletScreen}
         options={{ 
-          title: '钱包',
+          title: '市场',
           tabBarIcon: ({ focused }) => (
             <Icon
-              name={focused ? 'wallet' : 'wallet-outline'}
+              name={focused ? 'podium' : 'podium-outline'}
               type="ionicon"
               size={24}
               color={focused ? '#fe7000' : '#666666'}
@@ -631,13 +658,13 @@ function MainTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="DetailsTab"
+        name="DiscoverTab"
         component={ExampleScreen}
         options={{ 
-          title: '示例',
+          title: '发现',
           tabBarIcon: ({ focused }) => (
             <Icon
-              name={focused ? 'apps' : 'apps-outline'}
+              name={focused ? 'grid' : 'grid-outline'}
               type="ionicon"
               size={24}
               color={focused ? '#fe7000' : '#666666'}
@@ -646,10 +673,10 @@ function MainTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="ProfileTab"
+        name="AssetsTab"
         component={ProfileScreen}
         options={{ 
-          title: '我的',
+          title: '资产',
           tabBarIcon: ({ focused }) => (
             <Icon
               name={focused ? 'person' : 'person-outline'}
@@ -681,15 +708,331 @@ function OtherStackNavigator() {
   );
 }
 
+// 左侧抽屉导航组件
+function LeftDrawerNavigator() {
+  return (
+    <Drawer.Navigator
+      screenOptions={{
+        drawerPosition: 'left',
+        drawerActiveTintColor: '#1E88E5',
+        drawerInactiveTintColor: 'gray',
+        drawerLabelStyle: {
+          marginLeft: -20,
+        },
+        headerShown: false,
+        drawerType: 'front'
+      }}>
+      <Drawer.Screen
+        name="MainTabs"
+        component={MainTabNavigator}
+        options={{
+          title: '首页',
+          drawerIcon: ({ color, size }) => (
+            <Icon name="home" type="ionicon" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="SettingsStack"
+        component={SettingsStackNavigator}
+        options={{
+          title: '设置',
+          drawerIcon: ({ color, size }) => (
+            <Icon name="settings" type="ionicon" size={size} color={color} />
+          ),
+        }}
+      />
+    </Drawer.Navigator>
+  );
+}
+
+// 右侧抽屉导航组件
+function RightDrawerNavigator() {
+  return (
+    <Drawer.Navigator
+      screenOptions={{
+        drawerPosition: 'right',
+        drawerActiveTintColor: '#fe7000',
+        drawerInactiveTintColor: 'gray',
+        drawerLabelStyle: {
+          marginLeft: -20,
+        },
+        headerShown: false,
+        drawerType: 'front'
+      }}>
+      <Drawer.Screen
+        name="LeftDrawer"
+        component={LeftDrawerNavigator}
+        options={{
+          drawerItemStyle: { display: 'none' }
+        }}
+      />
+      <Drawer.Screen
+        name="HelpStack"
+        component={HelpStackNavigator}
+        options={{
+          title: '帮助中心',
+          drawerIcon: ({ color, size }) => (
+            <Icon name="help-circle" type="ionicon" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="NotificationStack"
+        component={NotificationScreen}
+        options={{
+          title: '消息中心',
+          drawerIcon: ({ color, size }) => (
+            <Icon name="notifications" type="ionicon" size={size} color={color} />
+          ),
+        }}
+      />
+    </Drawer.Navigator>
+  );
+}
+
+// 消息中心页面
+const NotificationScreen = () => {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+        },
+      ]}>
+      <Card>
+        <Card.Title>消息中心</Card.Title>
+        <Card.Divider />
+        <Text style={styles.paragraph}>这里是您的消息通知</Text>
+      </Card>
+    </View>
+  );
+};
+
 // 主应用导航
 function AppNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MainTabs" component={MainTabNavigator} />
-      <Stack.Screen name="OtherStack" component={OtherStackNavigator} />
+      <Stack.Screen name="Auth" component={AuthNavigator} />
+      <Stack.Screen name="Main" component={MainNavigator} />
     </Stack.Navigator>
   );
 }
+
+// 认证导航
+function AuthNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+    </Stack.Navigator>
+  );
+}
+
+// 主要导航（包含抽屉导航）
+function MainNavigator() {
+  return (
+    <Drawer.Navigator
+      screenOptions={{
+        drawerActiveTintColor: '#1E88E5',
+        drawerInactiveTintColor: 'gray',
+        drawerLabelStyle: {
+          marginLeft: -20,
+        },
+        headerShown: false,
+      }}>
+      <Drawer.Screen
+        name="MainTabs"
+        component={MainTabNavigator}
+        options={{
+          title: '首页',
+          drawerIcon: ({ color, size }) => (
+            <Icon name="home" type="ionicon" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="SettingsStack"
+        component={SettingsStackNavigator}
+        options={{
+          title: '设置',
+          drawerIcon: ({ color, size }) => (
+            <Icon name="settings" type="ionicon" size={size} color={color} />
+          ),
+        }}
+      />
+    </Drawer.Navigator>
+  );
+}
+
+// 设置堆栈导航
+function SettingsStackNavigator() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ title: '设置' }}
+      />
+      <Stack.Screen
+        name="SettingsDetail"
+        component={SettingsDetailScreen}
+        options={{ title: '设置详情' }}
+      />
+      <Stack.Screen
+        name="AccountSettings"
+        component={AccountSettingsScreen}
+        options={{ title: '账户设置' }}
+      />
+      <Stack.Screen
+        name="SecuritySettings"
+        component={SecuritySettingsScreen}
+        options={{ title: '安全设置' }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+// 帮助中心导航
+function HelpStackNavigator() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="HelpCenter"
+        component={HelpCenterScreen}
+        options={{ title: '帮助中心' }}
+      />
+      <Stack.Screen
+        name="FAQ"
+        component={FAQScreen}
+        options={{ title: '常见问题' }}
+      />
+      <Stack.Screen
+        name="Contact"
+        component={ContactScreen}
+        options={{ title: '联系我们' }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+// 帮助中心页面
+const HelpCenterScreen = ({ navigation }: { navigation: any }) => {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+        },
+      ]}>
+      <Card>
+        <Card.Title>帮助中心</Card.Title>
+        <Card.Divider />
+        <Text style={styles.paragraph}>获取帮助和支持</Text>
+        <Button
+          title="常见问题"
+          buttonStyle={[styles.button, { marginBottom: 10 }]}
+          onPress={() => navigation.navigate('FAQ')}
+        />
+        <Button
+          title="联系我们"
+          buttonStyle={[styles.button, { marginTop: 10 }]}
+          onPress={() => navigation.navigate('Contact')}
+        />
+      </Card>
+    </View>
+  );
+};
+
+// 常见问题页面
+const FAQScreen = () => {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+        },
+      ]}>
+      <Card>
+        <Card.Title>常见问题</Card.Title>
+        <Card.Divider />
+        <Text style={styles.paragraph}>这里是常见问题解答</Text>
+      </Card>
+    </View>
+  );
+};
+
+// 联系我们页面
+const ContactScreen = () => {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+        },
+      ]}>
+      <Card>
+        <Card.Title>联系我们</Card.Title>
+        <Card.Divider />
+        <Text style={styles.paragraph}>联系方式和客服信息</Text>
+      </Card>
+    </View>
+  );
+};
+
+// 账户设置页面
+const AccountSettingsScreen = () => {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+        },
+      ]}>
+      <Card>
+        <Card.Title>账户设置</Card.Title>
+        <Card.Divider />
+        <Text style={styles.paragraph}>管理您的账户信息</Text>
+      </Card>
+    </View>
+  );
+};
+
+// 安全设置页面
+const SecuritySettingsScreen = () => {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+        },
+      ]}>
+      <Card>
+        <Card.Title>安全设置</Card.Title>
+        <Card.Divider />
+        <Text style={styles.paragraph}>管理您的安全选项</Text>
+      </Card>
+    </View>
+  );
+};
 
 // 主应用组件
 const App = () => {
@@ -714,11 +1057,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
-  },
-  button: {
-    backgroundColor: '#1b8d74',
-    borderRadius: 8,
-    padding: 12,
   },
   paragraph: {
     margin: 24,
@@ -761,6 +1099,11 @@ const styles = StyleSheet.create({
   },
   inactiveLabel: {
     color: '#666666',
+  },
+  button: {
+    backgroundColor: '#1b8d74',
+    borderRadius: 8,
+    padding: 12,
   },
 });
 
